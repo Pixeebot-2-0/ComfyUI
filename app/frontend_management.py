@@ -9,10 +9,9 @@ from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
 from typing import TypedDict, Optional
-
-import requests
 from typing_extensions import NotRequired
 from comfy.cli_args import DEFAULT_VERSION_STRING
+from security import safe_requests
 
 
 REQUEST_TIMEOUT = 10  # seconds
@@ -51,7 +50,7 @@ class FrontEndProvider:
         releases = []
         api_url = self.release_url
         while api_url:
-            response = requests.get(api_url, timeout=REQUEST_TIMEOUT)
+            response = safe_requests.get(api_url, timeout=REQUEST_TIMEOUT)
             response.raise_for_status()  # Raises an HTTPError if the response was an error
             releases.extend(response.json())
             # GitHub uses the Link header to provide pagination links. Check if it exists and update api_url accordingly.
@@ -64,7 +63,7 @@ class FrontEndProvider:
     @cached_property
     def latest_release(self) -> Release:
         latest_release_url = f"{self.release_url}/latest"
-        response = requests.get(latest_release_url, timeout=REQUEST_TIMEOUT)
+        response = safe_requests.get(latest_release_url, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()  # Raises an HTTPError if the response was an error
         return response.json()
 
@@ -92,7 +91,7 @@ def download_release_asset_zip(release: Release, destination_path: str) -> None:
     # Use a temporary file to download the zip content
     with tempfile.TemporaryFile() as tmp_file:
         headers = {"Accept": "application/octet-stream"}
-        response = requests.get(
+        response = safe_requests.get(
             asset_url, headers=headers, allow_redirects=True, timeout=REQUEST_TIMEOUT
         )
         response.raise_for_status()  # Ensure we got a successful response
