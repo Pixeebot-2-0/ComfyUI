@@ -391,7 +391,7 @@ class ControlNet(nn.Module):
         if self.control_add_embedding is not None: #Union Controlnet
             control_type = kwargs.get("control_type", [])
 
-            if any([c >= self.num_control_type for c in control_type]):
+            if any(c >= self.num_control_type for c in control_type):
                 max_type = max(control_type)
                 max_type_name = {
                     v: k for k, v in UNION_CONTROLNET_TYPES.items()
