@@ -44,7 +44,7 @@ class SDXLClipModel(torch.nn.Module):
         clip_l_class = model_options.get("clip_l_class", sd1_clip.SDClipModel)
         self.clip_l = clip_l_class(layer="hidden", layer_idx=-2, device=device, dtype=dtype, layer_norm_hidden_state=False, model_options=model_options)
         self.clip_g = SDXLClipG(device=device, dtype=dtype, model_options=model_options)
-        self.dtypes = set([dtype])
+        self.dtypes = {dtype}
 
     def set_clip_options(self, options):
         self.clip_l.set_clip_options(options)
