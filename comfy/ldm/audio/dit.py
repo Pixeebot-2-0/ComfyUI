@@ -382,8 +382,9 @@ class ConformerModule(nn.Module):
     def __init__(
         self,
         dim,
-        norm_kwargs = {},
+        norm_kwargs = None,
     ):
+        norm_kwargs = {} if norm_kwargs is None else norm_kwargs
 
         super().__init__()
 
@@ -427,13 +428,16 @@ class TransformerBlock(nn.Module):
             conformer = False,
             layer_ix = -1,
             remove_norms = False,
-            attn_kwargs = {},
-            ff_kwargs = {},
-            norm_kwargs = {},
+            attn_kwargs = None,
+            ff_kwargs = None,
+            norm_kwargs = None,
             dtype=None,
             device=None,
             operations=None,
     ):
+        attn_kwargs = {} if attn_kwargs is None else attn_kwargs
+        ff_kwargs = {} if ff_kwargs is None else ff_kwargs
+        norm_kwargs = {} if norm_kwargs is None else norm_kwargs
 
         super().__init__()
         self.dim = dim
@@ -874,8 +878,9 @@ class AudioDiffusionTransformer(nn.Module):
         mask=None,
         return_info=False,
         control=None,
-        transformer_options={},
+        transformer_options=None,
         **kwargs):
+            transformer_options = {} if transformer_options is None else transformer_options
             return self._forward(
                 x,
                 timestep,

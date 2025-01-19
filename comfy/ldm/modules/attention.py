@@ -531,7 +531,8 @@ class BasicTransformerBlock(nn.Module):
         self.d_head = d_head
         self.switch_temporal_ca_to_sa = switch_temporal_ca_to_sa
 
-    def forward(self, x, context=None, transformer_options={}):
+    def forward(self, x, context=None, transformer_options=None):
+        transformer_options = {} if transformer_options is None else transformer_options
         extra_options = {}
         block = transformer_options.get("block", None)
         block_index = transformer_options.get("block_index", 0)
@@ -689,7 +690,8 @@ class SpatialTransformer(nn.Module):
             self.proj_out = operations.Linear(in_channels, inner_dim, dtype=dtype, device=device)
         self.use_linear = use_linear
 
-    def forward(self, x, context=None, transformer_options={}):
+    def forward(self, x, context=None, transformer_options=None):
+        transformer_options = {} if transformer_options is None else transformer_options
         # note: if no context is given, cross-attention defaults to self-attention
         if not isinstance(context, list):
             context = [context] * len(self.transformer_blocks)
@@ -806,8 +808,9 @@ class SpatialVideoTransformer(SpatialTransformer):
         time_context: Optional[torch.Tensor] = None,
         timesteps: Optional[int] = None,
         image_only_indicator: Optional[torch.Tensor] = None,
-        transformer_options={}
+        transformer_options=None
     ) -> torch.Tensor:
+        transformer_options = {} if transformer_options is None else transformer_options
         _, _, h, w = x.shape
         x_in = x
         spatial_context = None

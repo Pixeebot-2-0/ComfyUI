@@ -22,11 +22,18 @@ from torch import nn
 from .common import AttnBlock, LayerNorm2d_op, ResBlock, FeedForwardBlock, TimestepBlock
 
 class StageB(nn.Module):
-    def __init__(self, c_in=4, c_out=4, c_r=64, patch_size=2, c_cond=1280, c_hidden=[320, 640, 1280, 1280],
-                 nhead=[-1, -1, 20, 20], blocks=[[2, 6, 28, 6], [6, 28, 6, 2]],
-                 block_repeat=[[1, 1, 1, 1], [3, 3, 2, 2]], level_config=['CT', 'CT', 'CTA', 'CTA'], c_clip=1280,
-                 c_clip_seq=4, c_effnet=16, c_pixels=3, kernel_size=3, dropout=[0, 0, 0.0, 0.0], self_attn=True,
-                 t_conds=['sca'], stable_cascade_stage=None, dtype=None, device=None, operations=None):
+    def __init__(self, c_in=4, c_out=4, c_r=64, patch_size=2, c_cond=1280, c_hidden=None,
+                 nhead=None, blocks=None,
+                 block_repeat=None, level_config=None, c_clip=1280,
+                 c_clip_seq=4, c_effnet=16, c_pixels=3, kernel_size=3, dropout=None, self_attn=True,
+                 t_conds=None, stable_cascade_stage=None, dtype=None, device=None, operations=None):
+        c_hidden = [320, 640, 1280, 1280] if c_hidden is None else c_hidden
+        nhead = [-1, -1, 20, 20] if nhead is None else nhead
+        blocks = [[2, 6, 28, 6], [6, 28, 6, 2]] if blocks is None else blocks
+        block_repeat = [[1, 1, 1, 1], [3, 3, 2, 2]] if block_repeat is None else block_repeat
+        level_config = ['CT', 'CT', 'CTA', 'CTA'] if level_config is None else level_config
+        dropout = [0, 0, 0.0, 0.0] if dropout is None else dropout
+        t_conds = ['sca'] if t_conds is None else t_conds
         super().__init__()
         self.dtype = dtype
         self.c_r = c_r

@@ -61,7 +61,8 @@ class Guider_PerpNeg(comfy.samplers.CFGGuider):
         self.cfg = cfg
         self.neg_scale = neg_scale
 
-    def predict_noise(self, x, timestep, model_options={}, seed=None):
+    def predict_noise(self, x, timestep, model_options=None, seed=None):
+        model_options = {} if model_options is None else model_options
         # in CFGGuider.predict_noise, we call sampling_function(), which uses cfg_function() to compute pos & neg
         # but we'd rather do a single batch of sampling pos, neg, and empty, so we call calc_cond_batch([pos,neg,empty]) directly
         

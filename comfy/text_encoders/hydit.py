@@ -7,23 +7,27 @@ import os
 import torch
 
 class HyditBertModel(sd1_clip.SDClipModel):
-    def __init__(self, device="cpu", layer="last", layer_idx=None, dtype=None, model_options={}):
+    def __init__(self, device="cpu", layer="last", layer_idx=None, dtype=None, model_options=None):
+        model_options = {} if model_options is None else model_options
         textmodel_json_config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "hydit_clip.json")
         super().__init__(device=device, layer=layer, layer_idx=layer_idx, textmodel_json_config=textmodel_json_config, dtype=dtype, special_tokens={"start": 101, "end": 102, "pad": 0}, model_class=BertModel, enable_attention_masks=True, return_attention_masks=True, model_options=model_options)
 
 class HyditBertTokenizer(sd1_clip.SDTokenizer):
-    def __init__(self, embedding_directory=None, tokenizer_data={}):
+    def __init__(self, embedding_directory=None, tokenizer_data=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         tokenizer_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "hydit_clip_tokenizer")
         super().__init__(tokenizer_path, pad_with_end=False, embedding_size=1024, embedding_key='chinese_roberta', tokenizer_class=BertTokenizer, pad_to_max_length=False, max_length=512, min_length=77)
 
 
 class MT5XLModel(sd1_clip.SDClipModel):
-    def __init__(self, device="cpu", layer="last", layer_idx=None, dtype=None, model_options={}):
+    def __init__(self, device="cpu", layer="last", layer_idx=None, dtype=None, model_options=None):
+        model_options = {} if model_options is None else model_options
         textmodel_json_config = os.path.join(os.path.dirname(os.path.realpath(__file__)), "mt5_config_xl.json")
         super().__init__(device=device, layer=layer, layer_idx=layer_idx, textmodel_json_config=textmodel_json_config, dtype=dtype, special_tokens={"end": 1, "pad": 0}, model_class=comfy.text_encoders.t5.T5, enable_attention_masks=True, return_attention_masks=True, model_options=model_options)
 
 class MT5XLTokenizer(sd1_clip.SDTokenizer):
-    def __init__(self, embedding_directory=None, tokenizer_data={}):
+    def __init__(self, embedding_directory=None, tokenizer_data=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         #tokenizer_path = os.path.join(os.path.join(os.path.dirname(os.path.realpath(__file__)), "mt5_tokenizer"), "spiece.model")
         tokenizer = tokenizer_data.get("spiece_model", None)
         super().__init__(tokenizer, pad_with_end=False, embedding_size=2048, embedding_key='mt5xl', tokenizer_class=SPieceTokenizer, has_start_token=False, pad_to_max_length=False, max_length=99999999, min_length=256)
@@ -32,7 +36,8 @@ class MT5XLTokenizer(sd1_clip.SDTokenizer):
         return {"spiece_model": self.tokenizer.serialize_model()}
 
 class HyditTokenizer:
-    def __init__(self, embedding_directory=None, tokenizer_data={}):
+    def __init__(self, embedding_directory=None, tokenizer_data=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         mt5_tokenizer_data = tokenizer_data.get("mt5xl.spiece_model", None)
         self.hydit_clip = HyditBertTokenizer(embedding_directory=embedding_directory)
         self.mt5xl = MT5XLTokenizer(tokenizer_data={"spiece_model": mt5_tokenizer_data}, embedding_directory=embedding_directory)
@@ -50,7 +55,8 @@ class HyditTokenizer:
         return {"mt5xl.spiece_model": self.mt5xl.state_dict()["spiece_model"]}
 
 class HyditModel(torch.nn.Module):
-    def __init__(self, device="cpu", dtype=None, model_options={}):
+    def __init__(self, device="cpu", dtype=None, model_options=None):
+        model_options = {} if model_options is None else model_options
         super().__init__()
         self.hydit_clip = HyditBertModel(dtype=dtype, model_options=model_options)
         self.mt5xl = MT5XLModel(dtype=dtype, model_options=model_options)

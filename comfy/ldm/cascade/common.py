@@ -138,7 +138,8 @@ class FeedForwardBlock(nn.Module):
 
 
 class TimestepBlock(nn.Module):
-    def __init__(self, c, c_timestep, conds=['sca'], dtype=None, device=None, operations=None):
+    def __init__(self, c, c_timestep, conds=None, dtype=None, device=None, operations=None):
+        conds = ['sca'] if conds is None else conds
         super().__init__()
         self.mapper = operations.Linear(c_timestep, c * 2, dtype=dtype, device=device)
         self.conds = conds

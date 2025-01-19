@@ -64,7 +64,9 @@ def load_lora_for_models(model, clip, lora, strength_model, strength_clip):
 
 
 class CLIP:
-    def __init__(self, target=None, embedding_directory=None, no_init=False, tokenizer_data={}, parameters=0, model_options={}):
+    def __init__(self, target=None, embedding_directory=None, no_init=False, tokenizer_data=None, parameters=0, model_options=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
+        model_options = {} if model_options is None else model_options
         if no_init:
             return
         params = target.params.copy()
@@ -447,7 +449,8 @@ class CLIPType(Enum):
     FLUX = 6
     MOCHI = 7
 
-def load_clip(ckpt_paths, embedding_directory=None, clip_type=CLIPType.STABLE_DIFFUSION, model_options={}):
+def load_clip(ckpt_paths, embedding_directory=None, clip_type=CLIPType.STABLE_DIFFUSION, model_options=None):
+    model_options = {} if model_options is None else model_options
     clip_data = []
     for p in ckpt_paths:
         clip_data.append(comfy.utils.load_torch_file(p, safe_load=True))
@@ -490,7 +493,9 @@ def t5xxl_detect(clip_data):
     return {}
 
 
-def load_text_encoder_state_dicts(state_dicts=[], embedding_directory=None, clip_type=CLIPType.STABLE_DIFFUSION, model_options={}):
+def load_text_encoder_state_dicts(state_dicts=None, embedding_directory=None, clip_type=CLIPType.STABLE_DIFFUSION, model_options=None):
+    state_dicts = [] if state_dicts is None else state_dicts
+    model_options = {} if model_options is None else model_options
     clip_data = state_dicts
 
     class EmptyClass:
@@ -606,14 +611,18 @@ def load_checkpoint(config_path=None, ckpt_path=None, output_vae=True, output_cl
 
     return (model, clip, vae)
 
-def load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, output_clipvision=False, embedding_directory=None, output_model=True, model_options={}, te_model_options={}):
+def load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, output_clipvision=False, embedding_directory=None, output_model=True, model_options=None, te_model_options=None):
+    model_options = {} if model_options is None else model_options
+    te_model_options = {} if te_model_options is None else te_model_options
     sd = comfy.utils.load_torch_file(ckpt_path)
     out = load_state_dict_guess_config(sd, output_vae, output_clip, output_clipvision, embedding_directory, output_model, model_options, te_model_options=te_model_options)
     if out is None:
         raise RuntimeError("ERROR: Could not detect model type of: {}".format(ckpt_path))
     return out
 
-def load_state_dict_guess_config(sd, output_vae=True, output_clip=True, output_clipvision=False, embedding_directory=None, output_model=True, model_options={}, te_model_options={}):
+def load_state_dict_guess_config(sd, output_vae=True, output_clip=True, output_clipvision=False, embedding_directory=None, output_model=True, model_options=None, te_model_options=None):
+    model_options = {} if model_options is None else model_options
+    te_model_options = {} if te_model_options is None else te_model_options
     clip = None
     clipvision = None
     vae = None
@@ -689,7 +698,8 @@ def load_state_dict_guess_config(sd, output_vae=True, output_clip=True, output_c
     return (model_patcher, clip, vae, clipvision)
 
 
-def load_diffusion_model_state_dict(sd, model_options={}): #load unet in diffusers or regular format
+def load_diffusion_model_state_dict(sd, model_options=None): #load unet in diffusers or regular format
+    model_options = {} if model_options is None else model_options
     dtype = model_options.get("dtype", None)
 
     #Allow loading unets from checkpoint files
@@ -751,7 +761,8 @@ def load_diffusion_model_state_dict(sd, model_options={}): #load unet in diffuse
     return comfy.model_patcher.ModelPatcher(model, load_device=load_device, offload_device=offload_device)
 
 
-def load_diffusion_model(unet_path, model_options={}):
+def load_diffusion_model(unet_path, model_options=None):
+    model_options = {} if model_options is None else model_options
     sd = comfy.utils.load_torch_file(unet_path)
     model = load_diffusion_model_state_dict(sd, model_options=model_options)
     if model is None:
@@ -767,7 +778,8 @@ def load_unet_state_dict(sd, dtype=None):
     print("WARNING: the load_unet_state_dict function has been deprecated and will be removed please switch to: load_diffusion_model_state_dict")
     return load_diffusion_model_state_dict(sd, model_options={"dtype": dtype})
 
-def save_checkpoint(output_path, model, clip=None, vae=None, clip_vision=None, metadata=None, extra_keys={}):
+def save_checkpoint(output_path, model, clip=None, vae=None, clip_vision=None, metadata=None, extra_keys=None):
+    extra_keys = {} if extra_keys is None else extra_keys
     clip_sd = None
     load_models = [model]
     if clip is not None:

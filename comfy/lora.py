@@ -199,7 +199,8 @@ def load_lora(lora, to_load):
 
     return patch_dict
 
-def model_lora_keys_clip(model, key_map={}):
+def model_lora_keys_clip(model, key_map=None):
+    key_map = {} if key_map is None else key_map
     sdk = model.state_dict().keys()
     for k in sdk:
         if k.endswith(".weight"):
@@ -277,7 +278,8 @@ def model_lora_keys_clip(model, key_map={}):
 
     return key_map
 
-def model_lora_keys_unet(model, key_map={}):
+def model_lora_keys_unet(model, key_map=None):
+    key_map = {} if key_map is None else key_map
     sd = model.state_dict()
     sdk = sd.keys()
 

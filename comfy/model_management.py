@@ -417,7 +417,8 @@ def unload_model_clones(model, unload_weights_only=True, force_unload=True):
 
     return unload_weight
 
-def free_memory(memory_required, device, keep_loaded=[]):
+def free_memory(memory_required, device, keep_loaded=None):
+    keep_loaded = [] if keep_loaded is None else keep_loaded
     unloaded_model = []
     can_unload = []
     unloaded_models = []
@@ -625,7 +626,8 @@ def unet_inital_load_device(parameters, dtype):
 def maximum_vram_for_weights(device=None):
     return (get_total_memory(device) * 0.88 - minimum_inference_memory())
 
-def unet_dtype(device=None, model_params=0, supported_dtypes=[torch.float16, torch.bfloat16, torch.float32]):
+def unet_dtype(device=None, model_params=0, supported_dtypes=None):
+    supported_dtypes = [torch.float16, torch.bfloat16, torch.float32] if supported_dtypes is None else supported_dtypes
     if model_params < 0:
         model_params = 1000000000000000000000
     if args.bf16_unet:
@@ -673,7 +675,8 @@ def unet_dtype(device=None, model_params=0, supported_dtypes=[torch.float16, tor
     return torch.float32
 
 # None means no manual cast
-def unet_manual_cast(weight_dtype, inference_device, supported_dtypes=[torch.float16, torch.bfloat16, torch.float32]):
+def unet_manual_cast(weight_dtype, inference_device, supported_dtypes=None):
+    supported_dtypes = [torch.float16, torch.bfloat16, torch.float32] if supported_dtypes is None else supported_dtypes
     if weight_dtype == torch.float32:
         return None
 
@@ -758,7 +761,8 @@ def vae_offload_device():
     else:
         return torch.device("cpu")
 
-def vae_dtype(device=None, allowed_dtypes=[]):
+def vae_dtype(device=None, allowed_dtypes=None):
+    allowed_dtypes = [] if allowed_dtypes is None else allowed_dtypes
     global VAE_DTYPES
     if args.fp16_vae:
         return torch.float16

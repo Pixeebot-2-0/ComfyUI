@@ -96,8 +96,9 @@ class Flux(nn.Module):
         y: Tensor,
         guidance: Tensor = None,
         control=None,
-        transformer_options={},
+        transformer_options=None,
     ) -> Tensor:
+        transformer_options = {} if transformer_options is None else transformer_options
         patches_replace = transformer_options.get("patches_replace", {})
         if img.ndim != 3 or txt.ndim != 3:
             raise ValueError("Input img and txt tensors must have 3 dimensions.")
@@ -163,7 +164,8 @@ class Flux(nn.Module):
         img = self.final_layer(img, vec)  # (N, T, patch_size ** 2 * out_channels)
         return img
 
-    def forward(self, x, timestep, context, y, guidance, control=None, transformer_options={}, **kwargs):
+    def forward(self, x, timestep, context, y, guidance, control=None, transformer_options=None, **kwargs):
+        transformer_options = {} if transformer_options is None else transformer_options
         bs, c, h, w = x.shape
         patch_size = 2
         x = comfy.ldm.common_dit.pad_to_patch_size(x, (patch_size, patch_size))

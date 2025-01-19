@@ -82,8 +82,10 @@ class SDClipModel(torch.nn.Module, ClipTokenWeightEncoder):
     ]
     def __init__(self, device="cpu", max_length=77,
                  freeze=True, layer="last", layer_idx=None, textmodel_json_config=None, dtype=None, model_class=comfy.clip_model.CLIPTextModel,
-                 special_tokens={"start": 49406, "end": 49407, "pad": 49407}, layer_norm_hidden_state=True, enable_attention_masks=False, zero_out_masked=False,
-                 return_projected_pooled=True, return_attention_masks=False, model_options={}):  # clip-vit-base-patch32
+                 special_tokens=None, layer_norm_hidden_state=True, enable_attention_masks=False, zero_out_masked=False,
+                 return_projected_pooled=True, return_attention_masks=False, model_options=None):  # clip-vit-base-patch32
+        special_tokens = {"start": 49406, "end": 49407, "pad": 49407} if special_tokens is None else special_tokens
+        model_options = {} if model_options is None else model_options
         super().__init__()
         assert layer in self.LAYERS
 
@@ -411,7 +413,8 @@ def load_embed(embedding_name, embedding_directory, embedding_size, embed_key=No
     return embed_out
 
 class SDTokenizer:
-    def __init__(self, tokenizer_path=None, max_length=77, pad_with_end=True, embedding_directory=None, embedding_size=768, embedding_key='clip_l', tokenizer_class=CLIPTokenizer, has_start_token=True, pad_to_max_length=True, min_length=None, pad_token=None, tokenizer_data={}):
+    def __init__(self, tokenizer_path=None, max_length=77, pad_with_end=True, embedding_directory=None, embedding_size=768, embedding_key='clip_l', tokenizer_class=CLIPTokenizer, has_start_token=True, pad_to_max_length=True, min_length=None, pad_token=None, tokenizer_data=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         if tokenizer_path is None:
             tokenizer_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "sd1_tokenizer")
         self.tokenizer = tokenizer_class.from_pretrained(tokenizer_path)
@@ -548,7 +551,8 @@ class SDTokenizer:
         return {}
 
 class SD1Tokenizer:
-    def __init__(self, embedding_directory=None, tokenizer_data={}, clip_name="l", tokenizer=SDTokenizer):
+    def __init__(self, embedding_directory=None, tokenizer_data=None, clip_name="l", tokenizer=SDTokenizer):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         self.clip_name = clip_name
         self.clip = "clip_{}".format(self.clip_name)
         tokenizer = tokenizer_data.get("{}_tokenizer_class".format(self.clip), tokenizer)
@@ -566,11 +570,13 @@ class SD1Tokenizer:
         return {}
 
 class SD1CheckpointClipModel(SDClipModel):
-    def __init__(self, device="cpu", dtype=None, model_options={}):
+    def __init__(self, device="cpu", dtype=None, model_options=None):
+        model_options = {} if model_options is None else model_options
         super().__init__(device=device, return_projected_pooled=False, dtype=dtype, model_options=model_options)
 
 class SD1ClipModel(torch.nn.Module):
-    def __init__(self, device="cpu", dtype=None, model_options={}, clip_name="l", clip_model=SD1CheckpointClipModel, name=None, **kwargs):
+    def __init__(self, device="cpu", dtype=None, model_options=None, clip_name="l", clip_model=SD1CheckpointClipModel, name=None, **kwargs):
+        model_options = {} if model_options is None else model_options
         super().__init__()
 
         if name is not None:

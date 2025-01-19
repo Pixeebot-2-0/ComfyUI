@@ -118,7 +118,8 @@ class BaseModel(torch.nn.Module):
         logging.debug("adm {}".format(self.adm_channels))
         self.memory_usage_factor = model_config.memory_usage_factor
 
-    def apply_model(self, x, t, c_concat=None, c_crossattn=None, control=None, transformer_options={}, **kwargs):
+    def apply_model(self, x, t, c_concat=None, c_crossattn=None, control=None, transformer_options=None, **kwargs):
+        transformer_options = {} if transformer_options is None else transformer_options
         sigma = t
         xc = self.model_sampling.calculate_input(sigma, x)
         if c_concat is not None:

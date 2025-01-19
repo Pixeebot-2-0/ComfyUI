@@ -38,11 +38,19 @@ class UpDownBlock2d(nn.Module):
 
 
 class StageC(nn.Module):
-    def __init__(self, c_in=16, c_out=16, c_r=64, patch_size=1, c_cond=2048, c_hidden=[2048, 2048], nhead=[32, 32],
-                 blocks=[[8, 24], [24, 8]], block_repeat=[[1, 1], [1, 1]], level_config=['CTA', 'CTA'],
+    def __init__(self, c_in=16, c_out=16, c_r=64, patch_size=1, c_cond=2048, c_hidden=None, nhead=None,
+                 blocks=None, block_repeat=None, level_config=None,
                  c_clip_text=1280, c_clip_text_pooled=1280, c_clip_img=768, c_clip_seq=4, kernel_size=3,
-                 dropout=[0.0, 0.0], self_attn=True, t_conds=['sca', 'crp'], switch_level=[False], stable_cascade_stage=None,
+                 dropout=None, self_attn=True, t_conds=None, switch_level=None, stable_cascade_stage=None,
                  dtype=None, device=None, operations=None):
+        c_hidden = [2048, 2048] if c_hidden is None else c_hidden
+        nhead = [32, 32] if nhead is None else nhead
+        blocks = [[8, 24], [24, 8]] if blocks is None else blocks
+        block_repeat = [[1, 1], [1, 1]] if block_repeat is None else block_repeat
+        level_config = ['CTA', 'CTA'] if level_config is None else level_config
+        dropout = [0.0, 0.0] if dropout is None else dropout
+        t_conds = ['sca', 'crp'] if t_conds is None else t_conds
+        switch_level = [False] if switch_level is None else switch_level
         super().__init__()
         self.dtype = dtype
         self.c_r = c_r

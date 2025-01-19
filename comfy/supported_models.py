@@ -60,7 +60,8 @@ class SD15(supported_models_base.BASE):
         replace_prefix = {"clip_l.": "cond_stage_model."}
         return utils.state_dict_prefix_replace(state_dict, replace_prefix)
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         return supported_models_base.ClipTarget(sd1_clip.SD1Tokenizer, sd1_clip.SD1ClipModel)
 
 class SD20(supported_models_base.BASE):
@@ -104,7 +105,8 @@ class SD20(supported_models_base.BASE):
         state_dict = diffusers_convert.convert_text_enc_state_dict_v20(state_dict)
         return state_dict
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         return supported_models_base.ClipTarget(comfy.text_encoders.sd2_clip.SD2Tokenizer, comfy.text_encoders.sd2_clip.SD2ClipModel)
 
 class SD21UnclipL(SD20):
@@ -167,7 +169,8 @@ class SDXLRefiner(supported_models_base.BASE):
         state_dict_g = utils.state_dict_prefix_replace(state_dict_g, replace_prefix)
         return state_dict_g
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         return supported_models_base.ClipTarget(sdxl_clip.SDXLTokenizer, sdxl_clip.SDXLRefinerClipModel)
 
 class SDXL(supported_models_base.BASE):
@@ -240,7 +243,8 @@ class SDXL(supported_models_base.BASE):
         state_dict_g = utils.state_dict_prefix_replace(state_dict_g, replace_prefix)
         return state_dict_g
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         return supported_models_base.ClipTarget(sdxl_clip.SDXLTokenizer, sdxl_clip.SDXLClipModel)
 
 class SSD1B(SDXL):
@@ -311,7 +315,8 @@ class SVD_img2vid(supported_models_base.BASE):
         out = model_base.SVD_img2vid(self, device=device)
         return out
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         return None
 
 class SV3D_u(SVD_img2vid):
@@ -377,7 +382,8 @@ class Stable_Zero123(supported_models_base.BASE):
         out = model_base.Stable_Zero123(self, device=device, cc_projection_weight=state_dict["cc_projection.weight"], cc_projection_bias=state_dict["cc_projection.bias"])
         return out
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         return None
 
 class SD_X4Upscaler(SD20):
@@ -451,7 +457,8 @@ class Stable_Cascade_C(supported_models_base.BASE):
         out = model_base.StableCascade_C(self, device=device)
         return out
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         return supported_models_base.ClipTarget(sdxl_clip.StableCascadeTokenizer, sdxl_clip.StableCascadeClipModel)
 
 class Stable_Cascade_B(Stable_Cascade_C):
@@ -522,7 +529,8 @@ class SD3(supported_models_base.BASE):
         out = model_base.SD3(self, device=device)
         return out
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         clip_l = False
         clip_g = False
         t5 = False
@@ -566,7 +574,8 @@ class StableAudio(supported_models_base.BASE):
         replace_prefix = {"": "model.model."}
         return utils.state_dict_prefix_replace(state_dict, replace_prefix)
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         return supported_models_base.ClipTarget(comfy.text_encoders.sa_t5.SAT5Tokenizer, comfy.text_encoders.sa_t5.SAT5Model)
 
 class AuraFlow(supported_models_base.BASE):
@@ -589,7 +598,8 @@ class AuraFlow(supported_models_base.BASE):
         out = model_base.AuraFlow(self, device=device)
         return out
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         return supported_models_base.ClipTarget(comfy.text_encoders.aura_t5.AuraT5Tokenizer, comfy.text_encoders.aura_t5.AuraT5Model)
 
 class HunyuanDiT(supported_models_base.BASE):
@@ -615,7 +625,8 @@ class HunyuanDiT(supported_models_base.BASE):
         out = model_base.HunyuanDiT(self, device=device)
         return out
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         return supported_models_base.ClipTarget(comfy.text_encoders.hydit.HyditTokenizer, comfy.text_encoders.hydit.HyditModel)
 
 class HunyuanDiT1(HunyuanDiT):
@@ -653,7 +664,8 @@ class Flux(supported_models_base.BASE):
         out = model_base.Flux(self, device=device)
         return out
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         pref = self.text_encoder_key_prefix[0]
         t5_detect = comfy.text_encoders.sd3_clip.t5_xxl_detect(state_dict, "{}t5xxl.transformer.".format(pref))
         return supported_models_base.ClipTarget(comfy.text_encoders.flux.FluxTokenizer, comfy.text_encoders.flux.flux_clip(**t5_detect))
@@ -697,7 +709,8 @@ class GenmoMochi(supported_models_base.BASE):
         out = model_base.GenmoMochi(self, device=device)
         return out
 
-    def clip_target(self, state_dict={}):
+    def clip_target(self, state_dict=None):
+        state_dict = {} if state_dict is None else state_dict
         pref = self.text_encoder_key_prefix[0]
         t5_detect = comfy.text_encoders.sd3_clip.t5_xxl_detect(state_dict, "{}t5xxl.transformer.".format(pref))
         return supported_models_base.ClipTarget(comfy.text_encoders.genmo.MochiT5Tokenizer, comfy.text_encoders.genmo.mochi_te(**t5_detect))

@@ -184,11 +184,13 @@ class OobleckEncoder(nn.Module):
                  in_channels=2,
                  channels=128,
                  latent_dim=32,
-                 c_mults = [1, 2, 4, 8],
-                 strides = [2, 4, 8, 8],
+                 c_mults = None,
+                 strides = None,
                  use_snake=False,
                  antialias_activation=False
         ):
+        c_mults = [1, 2, 4, 8] if c_mults is None else c_mults
+        strides = [2, 4, 8, 8] if strides is None else strides
         super().__init__()
 
         c_mults = [1] + c_mults
@@ -218,12 +220,14 @@ class OobleckDecoder(nn.Module):
                  out_channels=2,
                  channels=128,
                  latent_dim=32,
-                 c_mults = [1, 2, 4, 8],
-                 strides = [2, 4, 8, 8],
+                 c_mults = None,
+                 strides = None,
                  use_snake=False,
                  antialias_activation=False,
                  use_nearest_upsample=False,
                  final_tanh=True):
+        c_mults = [1, 2, 4, 8] if c_mults is None else c_mults
+        strides = [2, 4, 8, 8] if strides is None else strides
         super().__init__()
 
         c_mults = [1] + c_mults
@@ -262,12 +266,14 @@ class AudioOobleckVAE(nn.Module):
                  in_channels=2,
                  channels=128,
                  latent_dim=64,
-                 c_mults = [1, 2, 4, 8, 16],
-                 strides = [2, 4, 4, 8, 8],
+                 c_mults = None,
+                 strides = None,
                  use_snake=True,
                  antialias_activation=False,
                  use_nearest_upsample=False,
                  final_tanh=False):
+        c_mults = [1, 2, 4, 8, 16] if c_mults is None else c_mults
+        strides = [2, 4, 4, 8, 8] if strides is None else strides
         super().__init__()
         self.encoder = OobleckEncoder(in_channels, channels, latent_dim * 2, c_mults, strides, use_snake, antialias_activation)
         self.decoder = OobleckDecoder(in_channels, channels, latent_dim, c_mults, strides, use_snake, antialias_activation,
