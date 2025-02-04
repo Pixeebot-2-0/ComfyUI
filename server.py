@@ -204,7 +204,7 @@ class PromptServer():
 
                 async for msg in ws:
                     if msg.type == aiohttp.WSMsgType.ERROR:
-                        logging.warning('ws connection closed with exception %s' % ws.exception())
+                        logging.warning('ws connection closed with exception %s', ws.exception())
             finally:
                 self.sockets.pop(sid, None)
             return ws
