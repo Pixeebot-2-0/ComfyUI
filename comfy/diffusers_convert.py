@@ -229,11 +229,7 @@ def convert_text_enc_state_dict_v20(text_enc_dict, prefix=""):
     for k, v in text_enc_dict.items():
         if not k.startswith(prefix):
             continue
-        if (
-                k.endswith(".self_attn.q_proj.weight")
-                or k.endswith(".self_attn.k_proj.weight")
-                or k.endswith(".self_attn.v_proj.weight")
-        ):
+        if k.endswith((".self_attn.q_proj.weight", ".self_attn.k_proj.weight", ".self_attn.v_proj.weight")):
             k_pre = k[: -len(".q_proj.weight")]
             k_code = k[-len("q_proj.weight")]
             if k_pre not in capture_qkv_weight:
@@ -241,11 +237,7 @@ def convert_text_enc_state_dict_v20(text_enc_dict, prefix=""):
             capture_qkv_weight[k_pre][code2idx[k_code]] = v
             continue
 
-        if (
-                k.endswith(".self_attn.q_proj.bias")
-                or k.endswith(".self_attn.k_proj.bias")
-                or k.endswith(".self_attn.v_proj.bias")
-        ):
+        if k.endswith((".self_attn.q_proj.bias", ".self_attn.k_proj.bias", ".self_attn.v_proj.bias")):
             k_pre = k[: -len(".q_proj.bias")]
             k_code = k[-len("q_proj.bias")]
             if k_pre not in capture_qkv_bias:

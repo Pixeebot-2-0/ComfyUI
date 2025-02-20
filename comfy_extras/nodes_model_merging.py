@@ -84,7 +84,7 @@ class CLIPMergeSimple:
         m = clip1.clone()
         kp = clip2.get_key_patches()
         for k in kp:
-            if k.endswith(".position_ids") or k.endswith(".logit_scale"):
+            if k.endswith((".position_ids", ".logit_scale")):
                 continue
             m.add_patches({k: kp[k]}, 1.0 - ratio, ratio)
         return (m, )
@@ -106,7 +106,7 @@ class CLIPSubtract:
         m = clip1.clone()
         kp = clip2.get_key_patches()
         for k in kp:
-            if k.endswith(".position_ids") or k.endswith(".logit_scale"):
+            if k.endswith((".position_ids", ".logit_scale")):
                 continue
             m.add_patches({k: kp[k]}, - multiplier, multiplier)
         return (m, )
@@ -127,7 +127,7 @@ class CLIPAdd:
         m = clip1.clone()
         kp = clip2.get_key_patches()
         for k in kp:
-            if k.endswith(".position_ids") or k.endswith(".logit_scale"):
+            if k.endswith((".position_ids", ".logit_scale")):
                 continue
             m.add_patches({k: kp[k]}, 1.0, 1.0)
         return (m, )

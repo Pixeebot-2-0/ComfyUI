@@ -71,13 +71,13 @@ class CLIPAttentionMultiply:
         sd = m.patcher.model_state_dict()
 
         for key in sd:
-            if key.endswith("self_attn.q_proj.weight") or key.endswith("self_attn.q_proj.bias"):
+            if key.endswith(("self_attn.q_proj.weight", "self_attn.q_proj.bias")):
                 m.add_patches({key: (None,)}, 0.0, q)
-            if key.endswith("self_attn.k_proj.weight") or key.endswith("self_attn.k_proj.bias"):
+            if key.endswith(("self_attn.k_proj.weight", "self_attn.k_proj.bias")):
                 m.add_patches({key: (None,)}, 0.0, k)
-            if key.endswith("self_attn.v_proj.weight") or key.endswith("self_attn.v_proj.bias"):
+            if key.endswith(("self_attn.v_proj.weight", "self_attn.v_proj.bias")):
                 m.add_patches({key: (None,)}, 0.0, v)
-            if key.endswith("self_attn.out_proj.weight") or key.endswith("self_attn.out_proj.bias"):
+            if key.endswith(("self_attn.out_proj.weight", "self_attn.out_proj.bias")):
                 m.add_patches({key: (None,)}, 0.0, out)
         return (m, )
 
@@ -100,12 +100,12 @@ class UNetTemporalAttentionMultiply:
         sd = model.model_state_dict()
 
         for k in sd:
-            if (k.endswith("attn1.to_out.0.bias") or k.endswith("attn1.to_out.0.weight")):
+            if k.endswith(("attn1.to_out.0.bias", "attn1.to_out.0.weight")):
                 if '.time_stack.' in k:
                     m.add_patches({k: (None,)}, 0.0, self_temporal)
                 else:
                     m.add_patches({k: (None,)}, 0.0, self_structural)
-            elif (k.endswith("attn2.to_out.0.bias") or k.endswith("attn2.to_out.0.weight")):
+            elif k.endswith(("attn2.to_out.0.bias", "attn2.to_out.0.weight")):
                 if '.time_stack.' in k:
                     m.add_patches({k: (None,)}, 0.0, cross_temporal)
                 else:

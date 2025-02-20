@@ -558,7 +558,7 @@ class StableAudio(supported_models_base.BASE):
 
     def process_unet_state_dict(self, state_dict):
         for k in list(state_dict.keys()):
-            if k.endswith(".cross_attend_norm.beta") or k.endswith(".ff_norm.beta") or k.endswith(".pre_norm.beta"): #These weights are all zero
+            if k.endswith((".cross_attend_norm.beta", ".ff_norm.beta", ".pre_norm.beta")): #These weights are all zero
                 state_dict.pop(k)
         return state_dict
 
