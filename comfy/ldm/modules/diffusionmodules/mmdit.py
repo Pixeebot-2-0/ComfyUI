@@ -788,7 +788,7 @@ class MMDiT(nn.Module):
         qkv_bias: bool = True,
         context_processor_layers = None,
         x_block_self_attn: bool = False,
-        x_block_self_attn_layers: Optional[List[int]] = [],
+        x_block_self_attn_layers: Optional[List[int]] = None,
         context_size = 4096,
         num_blocks = None,
         final_layer = True,
@@ -797,6 +797,7 @@ class MMDiT(nn.Module):
         device = None,
         operations = None,
     ):
+        x_block_self_attn_layers = [] if x_block_self_attn_layers is None else x_block_self_attn_layers
         super().__init__()
         self.dtype = dtype
         self.learn_sigma = learn_sigma
@@ -949,8 +950,9 @@ class MMDiT(nn.Module):
         c_mod: torch.Tensor,
         context: Optional[torch.Tensor] = None,
         control = None,
-        transformer_options = {},
+        transformer_options = None,
     ) -> torch.Tensor:
+        transformer_options = {} if transformer_options is None else transformer_options
         patches_replace = transformer_options.get("patches_replace", {})
         if self.register_length > 0:
             context = torch.cat(
@@ -999,7 +1001,7 @@ class MMDiT(nn.Module):
         y: Optional[torch.Tensor] = None,
         context: Optional[torch.Tensor] = None,
         control = None,
-        transformer_options = {},
+        transformer_options = None,
     ) -> torch.Tensor:
         """
         Forward pass of DiT.
@@ -1007,6 +1009,7 @@ class MMDiT(nn.Module):
         t: (N,) tensor of diffusion timesteps
         y: (N,) tensor of class labels
         """
+        transformer_options = {} if transformer_options is None else transformer_options
 
         if self.context_processor is not None:
             context = self.context_processor(context)
@@ -1035,8 +1038,9 @@ class OpenAISignatureMMDITWrapper(MMDiT):
         context: Optional[torch.Tensor] = None,
         y: Optional[torch.Tensor] = None,
         control = None,
-        transformer_options = {},
+        transformer_options = None,
         **kwargs,
     ) -> torch.Tensor:
+        transformer_options = {} if transformer_options is None else transformer_options
         return super().forward(x, timesteps, context=context, y=y, control=control, transformer_options=transformer_options)
 

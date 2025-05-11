@@ -7,13 +7,15 @@ import torch
 import os
 
 class T5XXLTokenizer(sd1_clip.SDTokenizer):
-    def __init__(self, embedding_directory=None, tokenizer_data={}):
+    def __init__(self, embedding_directory=None, tokenizer_data=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         tokenizer_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "t5_tokenizer")
         super().__init__(tokenizer_path, embedding_directory=embedding_directory, pad_with_end=False, embedding_size=4096, embedding_key='t5xxl', tokenizer_class=T5TokenizerFast, has_start_token=False, pad_to_max_length=False, max_length=99999999, min_length=256)
 
 
 class FluxTokenizer:
-    def __init__(self, embedding_directory=None, tokenizer_data={}):
+    def __init__(self, embedding_directory=None, tokenizer_data=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         clip_l_tokenizer_class = tokenizer_data.get("clip_l_tokenizer_class", sd1_clip.SDTokenizer)
         self.clip_l = clip_l_tokenizer_class(embedding_directory=embedding_directory)
         self.t5xxl = T5XXLTokenizer(embedding_directory=embedding_directory)
@@ -32,7 +34,8 @@ class FluxTokenizer:
 
 
 class FluxClipModel(torch.nn.Module):
-    def __init__(self, dtype_t5=None, device="cpu", dtype=None, model_options={}):
+    def __init__(self, dtype_t5=None, device="cpu", dtype=None, model_options=None):
+        model_options = {} if model_options is None else model_options
         super().__init__()
         dtype_t5 = comfy.model_management.pick_weight_dtype(dtype_t5, dtype, device)
         clip_l_class = model_options.get("clip_l_class", sd1_clip.SDClipModel)
@@ -64,7 +67,8 @@ class FluxClipModel(torch.nn.Module):
 
 def flux_clip(dtype_t5=None, t5xxl_scaled_fp8=None):
     class FluxClipModel_(FluxClipModel):
-        def __init__(self, device="cpu", dtype=None, model_options={}):
+        def __init__(self, device="cpu", dtype=None, model_options=None):
+            model_options = {} if model_options is None else model_options
             if t5xxl_scaled_fp8 is not None and "t5xxl_scaled_fp8" not in model_options:
                 model_options = model_options.copy()
                 model_options["t5xxl_scaled_fp8"] = t5xxl_scaled_fp8

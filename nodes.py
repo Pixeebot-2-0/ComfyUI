@@ -837,7 +837,8 @@ class ControlNetApplyAdvanced:
 
     CATEGORY = "conditioning/controlnet"
 
-    def apply_controlnet(self, positive, negative, control_net, image, strength, start_percent, end_percent, vae=None, extra_concat=[]):
+    def apply_controlnet(self, positive, negative, control_net, image, strength, start_percent, end_percent, vae=None, extra_concat=None):
+        extra_concat = [] if extra_concat is None else extra_concat
         if strength == 0:
             return (positive, negative)
 
@@ -2003,7 +2004,8 @@ def get_module_name(module_path: str) -> str:
     return base_path
 
 
-def load_custom_node(module_path: str, ignore=set(), module_parent="custom_nodes") -> bool:
+def load_custom_node(module_path: str, ignore=None, module_parent="custom_nodes") -> bool:
+    ignore = set() if ignore is None else ignore
     module_name = os.path.basename(module_path)
     if os.path.isfile(module_path):
         sp = os.path.splitext(module_path)

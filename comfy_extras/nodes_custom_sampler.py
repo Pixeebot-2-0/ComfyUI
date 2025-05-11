@@ -538,7 +538,8 @@ class Guider_DualCFG(comfy.samplers.CFGGuider):
         middle = node_helpers.conditioning_set_values(middle, {"prompt_type": "negative"})
         self.inner_set_conds({"positive": positive, "middle": middle, "negative": negative})
 
-    def predict_noise(self, x, timestep, model_options={}, seed=None):
+    def predict_noise(self, x, timestep, model_options=None, seed=None):
+        model_options = {} if model_options is None else model_options
         negative_cond = self.conds.get("negative", None)
         middle_cond = self.conds.get("middle", None)
 

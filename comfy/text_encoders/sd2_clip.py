@@ -2,7 +2,8 @@ from comfy import sd1_clip
 import os
 
 class SD2ClipHModel(sd1_clip.SDClipModel):
-    def __init__(self, arch="ViT-H-14", device="cpu", max_length=77, freeze=True, layer="penultimate", layer_idx=None, dtype=None, model_options={}):
+    def __init__(self, arch="ViT-H-14", device="cpu", max_length=77, freeze=True, layer="penultimate", layer_idx=None, dtype=None, model_options=None):
+        model_options = {} if model_options is None else model_options
         if layer == "penultimate":
             layer="hidden"
             layer_idx=-2
@@ -11,13 +12,16 @@ class SD2ClipHModel(sd1_clip.SDClipModel):
         super().__init__(device=device, freeze=freeze, layer=layer, layer_idx=layer_idx, textmodel_json_config=textmodel_json_config, dtype=dtype, special_tokens={"start": 49406, "end": 49407, "pad": 0}, return_projected_pooled=True, model_options=model_options)
 
 class SD2ClipHTokenizer(sd1_clip.SDTokenizer):
-    def __init__(self, tokenizer_path=None, embedding_directory=None, tokenizer_data={}):
+    def __init__(self, tokenizer_path=None, embedding_directory=None, tokenizer_data=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         super().__init__(tokenizer_path, pad_with_end=False, embedding_directory=embedding_directory, embedding_size=1024)
 
 class SD2Tokenizer(sd1_clip.SD1Tokenizer):
-    def __init__(self, embedding_directory=None, tokenizer_data={}):
+    def __init__(self, embedding_directory=None, tokenizer_data=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         super().__init__(embedding_directory=embedding_directory, tokenizer_data=tokenizer_data, clip_name="h", tokenizer=SD2ClipHTokenizer)
 
 class SD2ClipModel(sd1_clip.SD1ClipModel):
-    def __init__(self, device="cpu", dtype=None, model_options={}, **kwargs):
+    def __init__(self, device="cpu", dtype=None, model_options=None, **kwargs):
+        model_options = {} if model_options is None else model_options
         super().__init__(device=device, dtype=dtype, model_options=model_options, clip_name="h", clip_model=SD2ClipHModel, **kwargs)

@@ -252,7 +252,8 @@ def calc_cond_uncond_batch(model, cond, uncond, x_in, timestep, model_options): 
     logging.warning("WARNING: The comfy.samplers.calc_cond_uncond_batch function is deprecated please use the calc_cond_batch one instead.")
     return tuple(calc_cond_batch(model, [cond, uncond], x_in, timestep, model_options))
 
-def cfg_function(model, cond_pred, uncond_pred, cond_scale, x, timestep, model_options={}, cond=None, uncond=None):
+def cfg_function(model, cond_pred, uncond_pred, cond_scale, x, timestep, model_options=None, cond=None, uncond=None):
+    model_options = {} if model_options is None else model_options
     if "sampler_cfg_function" in model_options:
         args = {"cond": x - cond_pred, "uncond": x - uncond_pred, "cond_scale": cond_scale, "timestep": timestep, "input": x, "sigma": timestep,
                 "cond_denoised": cond_pred, "uncond_denoised": uncond_pred, "model": model, "model_options": model_options}
@@ -269,7 +270,8 @@ def cfg_function(model, cond_pred, uncond_pred, cond_scale, x, timestep, model_o
 
 #The main sampling function shared by all the samplers
 #Returns denoised
-def sampling_function(model, x, timestep, uncond, cond, cond_scale, model_options={}, seed=None):
+def sampling_function(model, x, timestep, uncond, cond, cond_scale, model_options=None, seed=None):
+    model_options = {} if model_options is None else model_options
     if math.isclose(cond_scale, 1.0) and model_options.get("disable_cfg1_optimization", False) == False:
         uncond_ = None
     else:
@@ -290,7 +292,8 @@ class KSamplerX0Inpaint:
     def __init__(self, model, sigmas):
         self.inner_model = model
         self.sigmas = sigmas
-    def __call__(self, x, sigma, denoise_mask, model_options={}, seed=None):
+    def __call__(self, x, sigma, denoise_mask, model_options=None, seed=None):
+        model_options = {} if model_options is None else model_options
         if denoise_mask is not None:
             if "denoise_mask_function" in model_options:
                 denoise_mask = model_options["denoise_mask_function"](sigma, denoise_mask, extra_options={"model": self.inner_model, "sigmas": self.sigmas})
@@ -599,7 +602,9 @@ KSAMPLER_NAMES = ["euler", "euler_cfg_pp", "euler_ancestral", "euler_ancestral_c
                   "ipndm", "ipndm_v", "deis"]
 
 class KSAMPLER(Sampler):
-    def __init__(self, sampler_function, extra_options={}, inpaint_options={}):
+    def __init__(self, sampler_function, extra_options=None, inpaint_options=None):
+        extra_options = {} if extra_options is None else extra_options
+        inpaint_options = {} if inpaint_options is None else inpaint_options
         self.sampler_function = sampler_function
         self.extra_options = extra_options
         self.inpaint_options = inpaint_options
@@ -626,7 +631,9 @@ class KSAMPLER(Sampler):
         return samples
 
 
-def ksampler(sampler_name, extra_options={}, inpaint_options={}):
+def ksampler(sampler_name, extra_options=None, inpaint_options=None):
+    extra_options = {} if extra_options is None else extra_options
+    inpaint_options = {} if inpaint_options is None else inpaint_options
     if sampler_name == "dpm_fast":
         def dpm_fast_function(model, noise, sigmas, extra_args, callback, disable):
             if len(sigmas) <= 1:
@@ -705,7 +712,8 @@ class CFGGuider:
     def __call__(self, *args, **kwargs):
         return self.predict_noise(*args, **kwargs)
 
-    def predict_noise(self, x, timestep, model_options={}, seed=None):
+    def predict_noise(self, x, timestep, model_options=None, seed=None):
+        model_options = {} if model_options is None else model_options
         return sampling_function(self.inner_model, x, timestep, self.conds.get("negative", None), self.conds.get("positive", None), self.cfg, model_options=model_options, seed=seed)
 
     def inner_sample(self, noise, latent_image, device, sampler, sigmas, denoise_mask, callback, disable_pbar, seed):
@@ -746,7 +754,8 @@ class CFGGuider:
         return output
 
 
-def sample(model, noise, positive, negative, cfg, device, sampler, sigmas, model_options={}, latent_image=None, denoise_mask=None, callback=None, disable_pbar=False, seed=None):
+def sample(model, noise, positive, negative, cfg, device, sampler, sigmas, model_options=None, latent_image=None, denoise_mask=None, callback=None, disable_pbar=False, seed=None):
+    model_options = {} if model_options is None else model_options
     cfg_guider = CFGGuider(model)
     cfg_guider.set_conds(positive, negative)
     cfg_guider.set_cfg(cfg)
@@ -793,7 +802,8 @@ class KSampler:
     SAMPLERS = SAMPLER_NAMES
     DISCARD_PENULTIMATE_SIGMA_SAMPLERS = set(('dpm_2', 'dpm_2_ancestral', 'uni_pc', 'uni_pc_bh2'))
 
-    def __init__(self, model, steps, device, sampler=None, scheduler=None, denoise=None, model_options={}):
+    def __init__(self, model, steps, device, sampler=None, scheduler=None, denoise=None, model_options=None):
+        model_options = {} if model_options is None else model_options
         self.model = model
         self.device = device
         if scheduler not in self.SCHEDULERS:

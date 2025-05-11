@@ -4,7 +4,8 @@ from comfy.cli_args import args
 
 from PIL import ImageFile, UnidentifiedImageError
 
-def conditioning_set_values(conditioning, values={}):
+def conditioning_set_values(conditioning, values=None):
+    values = {} if values is None else values
     c = []
     for t in conditioning:
         n = [t[0], t[1].copy()]

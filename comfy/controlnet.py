@@ -79,7 +79,8 @@ class ControlBase:
         self.extra_concat_orig = []
         self.extra_concat = None
 
-    def set_cond_hint(self, cond_hint, strength=1.0, timestep_percent_range=(0.0, 1.0), vae=None, extra_concat=[]):
+    def set_cond_hint(self, cond_hint, strength=1.0, timestep_percent_range=(0.0, 1.0), vae=None, extra_concat=None):
+        extra_concat = [] if extra_concat is None else extra_concat
         self.cond_hint_original = cond_hint
         self.strength = strength
         self.timestep_percent_range = timestep_percent_range
@@ -181,7 +182,8 @@ class ControlBase:
 
 
 class ControlNet(ControlBase):
-    def __init__(self, control_model=None, global_average_pooling=False, compression_ratio=8, latent_format=None, load_device=None, manual_cast_dtype=None, extra_conds=["y"], strength_type=StrengthType.CONSTANT, concat_mask=False):
+    def __init__(self, control_model=None, global_average_pooling=False, compression_ratio=8, latent_format=None, load_device=None, manual_cast_dtype=None, extra_conds=None, strength_type=StrengthType.CONSTANT, concat_mask=False):
+        extra_conds = ["y"] if extra_conds is None else extra_conds
         super().__init__()
         self.control_model = control_model
         self.load_device = load_device
@@ -337,7 +339,8 @@ class ControlLoraOps:
 
 
 class ControlLora(ControlNet):
-    def __init__(self, control_weights, global_average_pooling=False, model_options={}): #TODO? model_options
+    def __init__(self, control_weights, global_average_pooling=False, model_options=None): #TODO? model_options
+        model_options = {} if model_options is None else model_options
         ControlBase.__init__(self)
         self.control_weights = control_weights
         self.global_average_pooling = global_average_pooling
@@ -394,7 +397,8 @@ class ControlLora(ControlNet):
     def inference_memory_requirements(self, dtype):
         return comfy.utils.calculate_parameters(self.control_weights) * comfy.model_management.dtype_size(dtype) + ControlBase.inference_memory_requirements(self, dtype)
 
-def controlnet_config(sd, model_options={}):
+def controlnet_config(sd, model_options=None):
+    model_options = {} if model_options is None else model_options
     model_config = comfy.model_detection.model_config_from_unet(sd, "", True)
 
     unet_dtype = model_options.get("dtype", None)
@@ -427,7 +431,8 @@ def controlnet_load_state_dict(control_model, sd):
         logging.debug("unexpected controlnet keys: {}".format(unexpected))
     return control_model
 
-def load_controlnet_mmdit(sd, model_options={}):
+def load_controlnet_mmdit(sd, model_options=None):
+    model_options = {} if model_options is None else model_options
     new_sd = comfy.model_detection.convert_diffusers_mmdit(sd, "")
     model_config, operations, load_device, unet_dtype, manual_cast_dtype, offload_device = controlnet_config(new_sd, model_options=model_options)
     num_blocks = comfy.model_detection.count_blocks(new_sd, 'joint_blocks.{}.')
@@ -448,7 +453,8 @@ def load_controlnet_mmdit(sd, model_options={}):
     return control
 
 
-def load_controlnet_hunyuandit(controlnet_data, model_options={}):
+def load_controlnet_hunyuandit(controlnet_data, model_options=None):
+    model_options = {} if model_options is None else model_options
     model_config, operations, load_device, unet_dtype, manual_cast_dtype, offload_device = controlnet_config(controlnet_data, model_options=model_options)
 
     control_model = comfy.ldm.hydit.controlnet.HunYuanControlNet(operations=operations, device=offload_device, dtype=unet_dtype)
@@ -459,7 +465,8 @@ def load_controlnet_hunyuandit(controlnet_data, model_options={}):
     control = ControlNet(control_model, compression_ratio=1, latent_format=latent_format, load_device=load_device, manual_cast_dtype=manual_cast_dtype, extra_conds=extra_conds, strength_type=StrengthType.CONSTANT)
     return control
 
-def load_controlnet_flux_xlabs_mistoline(sd, mistoline=False, model_options={}):
+def load_controlnet_flux_xlabs_mistoline(sd, mistoline=False, model_options=None):
+    model_options = {} if model_options is None else model_options
     model_config, operations, load_device, unet_dtype, manual_cast_dtype, offload_device = controlnet_config(sd, model_options=model_options)
     control_model = comfy.ldm.flux.controlnet.ControlNetFlux(mistoline=mistoline, operations=operations, device=offload_device, dtype=unet_dtype, **model_config.unet_config)
     control_model = controlnet_load_state_dict(control_model, sd)
@@ -467,7 +474,8 @@ def load_controlnet_flux_xlabs_mistoline(sd, mistoline=False, model_options={}):
     control = ControlNet(control_model, load_device=load_device, manual_cast_dtype=manual_cast_dtype, extra_conds=extra_conds)
     return control
 
-def load_controlnet_flux_instantx(sd, model_options={}):
+def load_controlnet_flux_instantx(sd, model_options=None):
+    model_options = {} if model_options is None else model_options
     new_sd = comfy.model_detection.convert_diffusers_mmdit(sd, "")
     model_config, operations, load_device, unet_dtype, manual_cast_dtype, offload_device = controlnet_config(new_sd, model_options=model_options)
     for k in sd:
@@ -495,7 +503,8 @@ def convert_mistoline(sd):
     return comfy.utils.state_dict_prefix_replace(sd, {"single_controlnet_blocks.": "controlnet_single_blocks."})
 
 
-def load_controlnet_state_dict(state_dict, model=None, model_options={}):
+def load_controlnet_state_dict(state_dict, model=None, model_options=None):
+    model_options = {} if model_options is None else model_options
     controlnet_data = state_dict
     if 'after_proj_list.18.bias' in controlnet_data.keys(): #Hunyuan DiT
         return load_controlnet_hunyuandit(controlnet_data, model_options=model_options)
@@ -645,7 +654,8 @@ def load_controlnet_state_dict(state_dict, model=None, model_options={}):
     control = ControlNet(control_model, global_average_pooling=global_average_pooling, load_device=load_device, manual_cast_dtype=manual_cast_dtype)
     return control
 
-def load_controlnet(ckpt_path, model=None, model_options={}):
+def load_controlnet(ckpt_path, model=None, model_options=None):
+    model_options = {} if model_options is None else model_options
     if "global_average_pooling" not in model_options:
         filename = os.path.splitext(ckpt_path)[0]
         if filename.endswith("_shuffle") or filename.endswith("_shuffle_fp16"): #TODO: smarter way of enabling global_average_pooling
@@ -714,7 +724,8 @@ class T2IAdapter(ControlBase):
         self.copy_to(c)
         return c
 
-def load_t2i_adapter(t2i_data, model_options={}): #TODO: model_options
+def load_t2i_adapter(t2i_data, model_options=None): #TODO: model_options
+    model_options = {} if model_options is None else model_options
     compression_ratio = 8
     upscale_algorithm = 'nearest-exact'
 

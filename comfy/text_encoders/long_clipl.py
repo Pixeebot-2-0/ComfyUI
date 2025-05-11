@@ -2,7 +2,8 @@ from comfy import sd1_clip
 import os
 
 class LongClipTokenizer_(sd1_clip.SDTokenizer):
-    def __init__(self, embedding_directory=None, tokenizer_data={}):
+    def __init__(self, embedding_directory=None, tokenizer_data=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         super().__init__(max_length=248, embedding_directory=embedding_directory, tokenizer_data=tokenizer_data)
 
 class LongClipModel_(sd1_clip.SDClipModel):
@@ -11,11 +12,13 @@ class LongClipModel_(sd1_clip.SDClipModel):
         super().__init__(*args, textmodel_json_config=textmodel_json_config, **kwargs)
 
 class LongClipTokenizer(sd1_clip.SD1Tokenizer):
-    def __init__(self, embedding_directory=None, tokenizer_data={}):
+    def __init__(self, embedding_directory=None, tokenizer_data=None):
+        tokenizer_data = {} if tokenizer_data is None else tokenizer_data
         super().__init__(embedding_directory=embedding_directory, tokenizer_data=tokenizer_data, tokenizer=LongClipTokenizer_)
 
 class LongClipModel(sd1_clip.SD1ClipModel):
-    def __init__(self, device="cpu", dtype=None, model_options={}, **kwargs):
+    def __init__(self, device="cpu", dtype=None, model_options=None, **kwargs):
+        model_options = {} if model_options is None else model_options
         super().__init__(device=device, dtype=dtype, model_options=model_options, clip_model=LongClipModel_, **kwargs)
 
 def model_options_long_clip(sd, tokenizer_data, model_options):

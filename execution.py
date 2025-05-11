@@ -87,7 +87,8 @@ class CacheSet:
         }
         return result
 
-def get_input_data(inputs, class_def, unique_id, outputs=None, dynprompt=None, extra_data={}):
+def get_input_data(inputs, class_def, unique_id, outputs=None, dynprompt=None, extra_data=None):
+    extra_data = {} if extra_data is None else extra_data
     valid_inputs = class_def.INPUT_TYPES()
     input_data_all = {}
     missing_keys = {}
@@ -457,7 +458,9 @@ class PromptExecutor:
             }
             self.add_message("execution_error", mes, broadcast=False)
 
-    def execute(self, prompt, prompt_id, extra_data={}, execute_outputs=[]):
+    def execute(self, prompt, prompt_id, extra_data=None, execute_outputs=None):
+        extra_data = {} if extra_data is None else extra_data
+        execute_outputs = [] if execute_outputs is None else execute_outputs
         nodes.interrupt_processing(False)
 
         if "client_id" in extra_data:

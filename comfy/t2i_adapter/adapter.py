@@ -101,7 +101,8 @@ class ResnetBlock(nn.Module):
 
 
 class Adapter(nn.Module):
-    def __init__(self, channels=[320, 640, 1280, 1280], nums_rb=3, cin=64, ksize=3, sk=False, use_conv=True, xl=True):
+    def __init__(self, channels=None, nums_rb=3, cin=64, ksize=3, sk=False, use_conv=True, xl=True):
+        channels = [320, 640, 1280, 1280] if channels is None else channels
         super(Adapter, self).__init__()
         self.unshuffle_amount = 8
         resblock_no_downsample = []
@@ -268,7 +269,8 @@ class extractor(nn.Module):
 
 
 class Adapter_light(nn.Module):
-    def __init__(self, channels=[320, 640, 1280, 1280], nums_rb=3, cin=64):
+    def __init__(self, channels=None, nums_rb=3, cin=64):
+        channels = [320, 640, 1280, 1280] if channels is None else channels
         super(Adapter_light, self).__init__()
         self.unshuffle_amount = 8
         self.unshuffle = nn.PixelUnshuffle(self.unshuffle_amount)
