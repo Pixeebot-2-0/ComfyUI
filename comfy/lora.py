@@ -382,7 +382,7 @@ def pad_tensor_to_shape(tensor: torch.Tensor, new_shape: list[int]) -> torch.Ten
         If the new shape is smaller than the original tensor in any dimension,
         the original tensor will be truncated in that dimension.
     """
-    if any([new_shape[i] < tensor.shape[i] for i in range(len(new_shape))]):
+    if any(new_shape[i] < tensor.shape[i] for i in range(len(new_shape))):
         raise ValueError("The new shape must be larger than the original tensor in all dimensions")
 
     if len(new_shape) != len(tensor.shape):
