@@ -38,7 +38,7 @@ class FluxClipModel(torch.nn.Module):
         clip_l_class = model_options.get("clip_l_class", sd1_clip.SDClipModel)
         self.clip_l = clip_l_class(device=device, dtype=dtype, return_projected_pooled=False, model_options=model_options)
         self.t5xxl = comfy.text_encoders.sd3_clip.T5XXLModel(device=device, dtype=dtype_t5, model_options=model_options)
-        self.dtypes = set([dtype, dtype_t5])
+        self.dtypes = {dtype, dtype_t5}
 
     def set_clip_options(self, options):
         self.clip_l.set_clip_options(options)
